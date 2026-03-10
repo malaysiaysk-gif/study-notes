@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>台湾華語 単語カード（TOCFL）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <link rel="stylesheet" href="style.css" />
+  
+  <style>
+    .speak-btn { margin-top: 8px; padding: 8px 16px; border-radius: 999px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: #f97316; color: white; }
+    /* モード切替ボタン */
+    .mode-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .mode-btn { padding: 8px 24px; border-radius: 999px; border: 2px solid #3b82f6; background: white; color: #3b82f6; font-weight: bold; cursor: pointer; }
+    .mode-btn.active { background: #3b82f6; color: white; }
+    /* クイズ用スタイル */
+    .quiz-label { font-size: 14px; color: #666; margin-bottom: 12px; }
+    .quiz-zh { font-size: 32px; font-weight: bold; color: #1f2937; }
+    .quiz-pinyin { font-size: 18px; color: #6b7280; margin-bottom: 20px; }
+    .quiz-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    
+    .quiz-option-btn {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #000000;
+    }
+    
+    .quiz-option-btn:hover { background: #f3f4f6; }
+    .quiz-feedback { font-size: 16px; font-weight: bold; min-height: 24px; margin-bottom: 16px; }
+    .quiz-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e5e7eb; padding-top: 16px; }
+    #quiz-wrong-count { font-size: 14px; color: #ef4444; font-weight: bold; }
+    #quiz-next-btn { padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; display: none; }
+    
+    /* 間違えた単語だけボタンのスタイル */
+    .wrong-toggle-wrapper { text-align: center; margin-top: 16px; }
+    .toggle-wrong-btn { padding: 8px 16px; border-radius: 999px; border: 2px solid #ef4444; background: white; color: #ef4444; font-weight: bold; cursor: pointer; }
+    .toggle-wrong-btn.active { background: #ef4444; color: white; }
+  </style>
+
+</head>
+<body>
+  <div class="app">
+    <h1>台湾華語 単語カード</h1>
+
+    <div class="mode-toggle">
+      <button id="mode-card-btn" class="mode-btn active">カード</button>
+      <button id="mode-quiz-btn" class="mode-btn">クイズ</button>
+    </div>
+
+    <div id="card-mode">
+      <div class="card">
+        <div class="zh" id="word-zh">華語</div>
+        <div class="pinyin" id="word-pinyin">huáyǔ</div>
+        <div class="jp" id="word-jp">中国語</div>
+        <div class="note" id="word-note"></div>
+        <button id="speak-btn" class="speak-btn">発音を聞く</button>
+        <div class="counter" id="word-counter">0 / 0</div>
+      </div>
+
+      <div class="buttons">
+        <button id="prev-btn">前へ</button>
+        <button id="random-btn">ランダム</button>
+        <button id="next-btn">次へ</button>
+      </div>
+      
+      <div class="wrong-toggle-wrapper">
+        <button id="toggle-wrong-btn" class="toggle-wrong-btn">
+          間違えた単語だけ
+        </button>
+      </div>
+
+    </div>
+
+    <div id="quiz-mode" class="quiz" style="display: none;">
+      <div class="card quiz-card">
+        <div class="quiz-label">意味を選んでください（4択）</div>
+        <div class="quiz-zh" id="quiz-zh">我</div>
+        <div class="quiz-pinyin" id="quiz-pinyin">wǒ</div>
+
+        <div class="quiz-options" id="quiz-options">
+          </div>
+
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+        <div class="quiz-footer">
+          <div id="quiz-wrong-count">間違えた単語: 0 語</div>
+          <button id="quiz-next-btn">次の問題</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
