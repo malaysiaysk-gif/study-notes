@@ -1231,15 +1231,11 @@ const words = [
         
 ];
 
-// ===== ここから下を app.js の `];` のすぐ下に貼り付け =====
+// ===== ここから下がアプリの動く仕組み（ロジック）です =====
 
 // ===== カード表示用 =====
 let currentIndex = 0;
-
-// ★追加：カードで「間違えた単語だけ」を回すフラグ
 let reviewWrongOnly = false;
-
-// 間違えた単語を index => 間違え回数 で保存
 const wrongMap = {};
 
 function getWrongIndices() {
@@ -1247,12 +1243,9 @@ function getWrongIndices() {
 }
 
 function renderWord() {
-  if (!Array.isArray(words) || words.length === 0) {
-    return;
-  }
+  if (!Array.isArray(words) || words.length === 0) return;
 
   const w = words[currentIndex];
-
   document.getElementById("word-zh").textContent = w.zh || "";
   document.getElementById("word-pinyin").textContent = w.pinyin || "";
   document.getElementById("word-jp").textContent = w.jp || "";
@@ -1313,26 +1306,18 @@ function randomWord() {
 }
 
 // ===== クイズ用 =====
-
-// 今の問題
 let currentQuiz = null;
 
-/**
- * ランダムに 1 問生成（中国語を見て日本語訳を4択）
- */
 function createQuizQuestion() {
   const correctIndex = Math.floor(Math.random() * words.length);
 
-  // 他の選択肢をランダムに3つ選ぶ
   const indices = new Set();
   indices.add(correctIndex);
   while (indices.size < 4) {
-    const i = Math.floor(Math.random() * words.length);
-    indices.add(i);
+    indices.add(Math.floor(Math.random() * words.length));
   }
 
   const optionIndices = Array.from(indices);
-  // シャッフル
   optionIndices.sort(() => Math.random() - 0.5);
 
   return {
@@ -1363,35 +1348,24 @@ function renderQuiz(question) {
     btn.textContent = opt.jp || "";
     btn.dataset.index = String(opt.index);
 
-    btn.addEventListener("click", () => {
-      handleAnswerClick(btn, question);
-    });
-
+    btn.addEventListener("click", () => handleAnswerClick(btn, question));
     optContainer.appendChild(btn);
   });
 }
 
 function handleAnswerClick(clickedBtn, question) {
-  const buttons = Array.from(
-    document.querySelectorAll(".quiz-option-btn")
-  );
+  const buttons = Array.from(document.querySelectorAll(".quiz-option-btn"));
   const feedbackEl = document.getElementById("quiz-feedback");
 
   const clickedIndex = Number(clickedBtn.dataset.index);
   const correctIndex = question.correctIndex;
 
-  // すでに回答済みなら何もしない
   if (buttons.some((b) => b.disabled)) return;
 
-  // 正誤判定（色を直接変える）
   buttons.forEach((btn) => {
     const idx = Number(btn.dataset.index);
-    if (idx === correctIndex) {
-      btn.style.backgroundColor = "#bbf7d0"; // 正解は緑
-    }
-    if (btn === clickedBtn && idx !== correctIndex) {
-      btn.style.backgroundColor = "#fecaca"; // 不正解は赤
-    }
+    if (idx === correctIndex) btn.style.backgroundColor = "#bbf7d0"; 
+    if (btn === clickedBtn && idx !== correctIndex) btn.style.backgroundColor = "#fecaca"; 
     btn.disabled = true;
   });
 
@@ -1399,19 +1373,14 @@ function handleAnswerClick(clickedBtn, question) {
     feedbackEl.textContent = "正解！";
     feedbackEl.style.color = "#16a34a";
   } else {
-    feedbackEl.textContent =
-      "不正解…　正解：「" + words[correctIndex].jp + "」";
+    feedbackEl.textContent = "不正解…　正解：「" + words[correctIndex].jp + "」";
     feedbackEl.style.color = "#dc2626";
 
-    // 間違えた単語を記録
-    if (!wrongMap[correctIndex]) {
-      wrongMap[correctIndex] = 0;
-    }
+    if (!wrongMap[correctIndex]) wrongMap[correctIndex] = 0;
     wrongMap[correctIndex] += 1;
     updateWrongCount();
   }
   
-  // 次の問題へボタンを表示
   const nextBtn = document.getElementById("quiz-next-btn");
   if (nextBtn) nextBtn.style.display = "block";
 }
@@ -1419,9 +1388,7 @@ function handleAnswerClick(clickedBtn, question) {
 function updateWrongCount() {
   const count = Object.keys(wrongMap).length;
   const el = document.getElementById("quiz-wrong-count");
-  if (el) {
-    el.textContent = "間違えた単語: " + count + " 語";
-  }
+  if (el) el.textContent = "間違えた単語: " + count + " 語";
 }
 
 function nextQuizQuestion() {
@@ -1432,9 +1399,7 @@ function nextQuizQuestion() {
 }
 
 // ===== モード切替と初期化 =====
-
 window.addEventListener("DOMContentLoaded", () => {
-  // カード用
   document.getElementById("next-btn").addEventListener("click", nextWord);
   document.getElementById("prev-btn").addEventListener("click", prevWord);
   document.getElementById("random-btn").addEventListener("click", randomWord);
@@ -1452,22 +1417,24 @@ window.addEventListener("DOMContentLoaded", () => {
       if (!text) return;
 
       window.speechSynthesis.cancel();
-
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = "zh-TW";
       utter.rate = 0.9;
+
+      // ★スマホ向け：強制的に中国語（zh）の声を探してセットする魔法★
+      const voices = window.speechSynthesis.getVoices();
+      const chineseVoice = voices.find(v => v.lang.includes("zh") || v.lang.includes("ZH"));
+      if (chineseVoice) { utter.voice = chineseVoice; }
 
       window.speechSynthesis.speak(utter);
     });
   }
 
-  // ★追加：「間違えた単語だけ」トグル
   const toggleWrongBtn = document.getElementById("toggle-wrong-btn");
   if (toggleWrongBtn) {
     toggleWrongBtn.addEventListener("click", () => {
       const wrongIndices = getWrongIndices();
       
-      // オンにしようとしているのに、まだ間違いがない場合
       if (!reviewWrongOnly && wrongIndices.length === 0) {
         alert("まだ間違えた単語がありません。クイズで間違えた単語がここに貯まります。");
         return;
@@ -1475,11 +1442,8 @@ window.addEventListener("DOMContentLoaded", () => {
       
       reviewWrongOnly = !reviewWrongOnly;
       toggleWrongBtn.classList.toggle("active", reviewWrongOnly);
-      toggleWrongBtn.textContent = reviewWrongOnly
-        ? "全単語に戻る"
-        : "間違えた単語だけ";
+      toggleWrongBtn.textContent = reviewWrongOnly ? "全単語に戻る" : "間違えた単語だけ";
       
-      // ON にしたときは、最初の間違い単語からスタート
       if (reviewWrongOnly && wrongIndices.length > 0) {
         currentIndex = wrongIndices[0];
         renderWord();
@@ -1487,7 +1451,6 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // モード切替
   const cardMode = document.getElementById("card-mode");
   const quizMode = document.getElementById("quiz-mode");
   const cardBtn = document.getElementById("mode-card-btn");
@@ -1507,19 +1470,13 @@ window.addEventListener("DOMContentLoaded", () => {
       quizBtn.classList.add("active");
       cardBtn.classList.remove("active");
 
-      if (!currentQuiz) {
-        nextQuizQuestion();
-      }
+      if (!currentQuiz) nextQuizQuestion();
     });
   }
 
-  // クイズ「次の問題」ボタン
   const quizNextBtn = document.getElementById("quiz-next-btn");
-  if (quizNextBtn) {
-    quizNextBtn.addEventListener("click", nextQuizQuestion);
-  }
+  if (quizNextBtn) quizNextBtn.addEventListener("click", nextQuizQuestion);
 
-  // 初期表示
   renderWord();
   updateWrongCount();
 });
