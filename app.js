@@ -478,8 +478,7 @@ const words = [
     { "zh": "練習", "pinyin": "liànxí", "jp": "練習する", "note": "", "category": "動詞", "subcategory": "その他の動作" },
     { "zh": "參加", "pinyin": "cānjiā", "jp": "参加する", "note": "", "category": "動詞", "subcategory": "その他の動作" },
     { "zh": "文化", "pinyin": "wénhuà", "jp": "文化", "note": "", "category": "名詞", "subcategory": "抽象" },
-    { "zh": "認為", "pinyin": "rènwéi", "jp": "〜だと思う、考える", "note": "「覺得」より少し硬い表現", "category": "動詞", "subcategory": "状態・思考" }
-  
+    { "zh": "認為", "pinyin": "rènwéi", "jp": "〜だと思う、考える", "note": "「覺得」より少し硬い表現", "category": "動詞", "subcategory": "状態・思考" },
     { "zh": "清楚", "pinyin": "qīngchu", "jp": "はっきりしている", "note": "聽不清楚（はっきり聞こえない）", "category": "形容詞", "subcategory": "状態・評価" },
     { "zh": "決定", "pinyin": "juédìng", "jp": "決定する、決める", "note": "", "category": "動詞", "subcategory": "状態・思考" },
     { "zh": "記得", "pinyin": "jìde", "jp": "覚えている", "note": "不記得（覚えていない）", "category": "動詞", "subcategory": "状態・思考" },
