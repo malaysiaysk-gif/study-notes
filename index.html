@@ -8,12 +8,16 @@
   <link rel="stylesheet" href="style.css" />
   
   <style>
+    /* ▼ スプレッドシートリンク用のスタイル ▼ */
+    .sheet-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .sheet-link { font-size: 14px; color: #3b82f6; text-decoration: underline; cursor: pointer; }
+    .sheet-link:hover { color: #2563eb; }
+
+    /* ▼ 既存のスタイル ▼ */
     .speak-btn { margin-top: 8px; padding: 8px 16px; border-radius: 999px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: #f97316; color: white; }
-    /* モード切替ボタン */
     .mode-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
     .mode-btn { padding: 8px 24px; border-radius: 999px; border: 2px solid #3b82f6; background: white; color: #3b82f6; font-weight: bold; cursor: pointer; }
     .mode-btn.active { background: #3b82f6; color: white; }
-    /* クイズ用スタイル */
     .quiz-label { font-size: 14px; color: #666; margin-bottom: 12px; }
     .quiz-zh { font-size: 32px; font-weight: bold; color: #1f2937; }
     .quiz-pinyin { font-size: 18px; color: #6b7280; margin-bottom: 20px; }
@@ -36,28 +40,46 @@
     #quiz-wrong-count { font-size: 14px; color: #ef4444; font-weight: bold; }
     #quiz-next-btn { padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; display: none; }
     
-    /* 間違えた単語だけボタンのスタイル */
     .wrong-toggle-wrapper { text-align: center; margin-top: 16px; }
     .toggle-wrong-btn { padding: 8px 16px; border-radius: 999px; border: 2px solid #ef4444; background: white; color: #ef4444; font-weight: bold; cursor: pointer; }
     .toggle-wrong-btn.active { background: #ef4444; color: white; }
   </style>
-
 </head>
 <body>
   <div class="app">
     <h1>台湾華語 単語カード</h1>
 
-    <div id="category-bar" class="category-bar">
-      <!-- JavaScript からカテゴリボタンを自動生成します -->
+    <div class="sheet-links">
+    <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=0" target="_blank" class="sheet-link">タブ1</a>
+      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=1997786373" target="_blank" class="sheet-link">タブ2</a>
+      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=635468461" target="_blank" class="sheet-link">タブ3</a>
+      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=431753409" target="_blank" class="sheet-link">タブ4</a>
+      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=386010793" target="_blank" class="sheet-link">タブ5</a>
+      
+      <a href="#" target="_blank" class="sheet-link">タブ6 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ7 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ8 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ9 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ10 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ11 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ12 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ13 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ14 (空)</a>
+      <a href="#" target="_blank" class="sheet-link">タブ15 (空)</a>
     </div>
+
+    <div id="category-bar" class="category-bar"></div>
 
     <div class="mode-toggle">
       <button id="mode-card-btn" class="mode-btn active">カード</button>
       <button id="mode-quiz-btn" class="mode-btn">クイズ</button>
+      <button id="mode-listening-btn" class="mode-btn">リスニング</button>
     </div>
 
     <div id="card-mode">
       <div class="card">
+        <button id="bookmark-btn" class="bookmark-btn">☆</button>
+
         <div class="zh" id="word-zh">華語</div>
         <div class="pinyin" id="word-pinyin">huáyǔ</div>
         <div class="jp" id="word-jp">中国語</div>
@@ -73,21 +95,25 @@
       </div>
       
       <div class="wrong-toggle-wrapper">
-        <button id="toggle-wrong-btn" class="toggle-wrong-btn">
-          間違えた単語だけ
-        </button>
+        <button id="toggle-wrong-btn" class="toggle-wrong-btn">間違えた単語だけ</button>
+        <button id="toggle-bookmark-btn" class="toggle-bookmark-btn">ブックマークのみ</button>
       </div>
-
     </div>
 
     <div id="quiz-mode" class="quiz" style="display: none;">
       <div class="card quiz-card">
-        <div class="quiz-label">意味を選んでください（4択）</div>
-        <div class="quiz-zh" id="quiz-zh">我</div>
-        <div class="quiz-pinyin" id="quiz-pinyin">wǒ</div>
+        <div class="quiz-label" id="quiz-instruction">意味を選んでください（4択）</div>
+        
+        <div id="quiz-target-container">
+          <div class="quiz-zh" id="quiz-zh">我</div>
+          <div class="quiz-pinyin" id="quiz-pinyin">wǒ</div>
+        </div>
 
-        <div class="quiz-options" id="quiz-options">
-          </div>
+        <button id="quiz-speak-btn" class="speak-btn" style="display: none; margin: 10px auto;">
+          もう一度聞く 🔊
+        </button>
+
+        <div class="quiz-options" id="quiz-options"></div>
 
         <div class="quiz-feedback" id="quiz-feedback"></div>
         <div class="quiz-footer">
