@@ -11,87 +11,25 @@ body {
   flex-direction: column;
   align-items: center;
   overflow-x: hidden;
-  position: relative; /* ★追加：左サイドバーの配置基準にするため */
+  position: relative;
 }
 
-h1, h2, h3 {
-  color: #ffffff;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-align: center;
-}
+h1, h2, h3 { color: #ffffff; font-weight: 700; letter-spacing: 1px; text-align: center; }
+
+/* ===== スプレッドシートリンク ===== */
+.sheet-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; width: 100%; max-width: 600px; }
+.sheet-link { font-size: 14px; color: #3b82f6; text-decoration: underline; cursor: pointer; transition: 0.2s; }
+.sheet-link:hover { color: #60a5fa; /* ダークモードに合わせてホバー時は少し明るい青に */ }
 
 /* ===== カテゴリバー ===== */
-#category-bar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  width: 100%;
-  max-width: 600px;
-}
-
-.category-btn {
-  background-color: #2a2a2a;
-  color: #a0a0a0;
-  border: 1px solid #3a3a3a;
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
+#category-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 20px; width: 100%; max-width: 600px; }
+.category-btn { background-color: #2a2a2a; color: #a0a0a0; border: 1px solid #3a3a3a; border-radius: 20px; padding: 8px 16px; font-size: 14px; cursor: pointer; transition: all 0.3s ease; }
 .category-btn:hover { background-color: #3a3a3a; }
-.category-btn.active {
-  background-color: #3b82f6;
-  color: #ffffff;
-  border-color: #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-}
+.category-btn.active { background-color: #3b82f6; color: #ffffff; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
 
-/* ★追加：PC画面など横幅が広い時は、左側に「縦のサイドバー」として配置する */
 @media (min-width: 900px) {
-  #category-bar {
-    position: absolute;
-    left: 40px;            /* 左端からの距離 */
-    top: 100px;            /* 上からの距離（タイトルの下あたり） */
-    flex-direction: column;/* 縦に並べる */
-    width: 180px;          /* サイドバーの幅 */
-  }
-  .category-btn {
-    width: 100%;           /* 幅を揃える */
-    border-radius: 12px;   /* 縦並びの時は少し四角い方が綺麗にまとまります */
-    padding: 12px 16px;
-    font-size: 15px;
-  }
-}
-
-/* ===== モード切替 ===== */
-.mode-toggle-container {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-button[id^="mode-"] {
-  background-color: #1e1e1e;
-  color: #888;
-  border: 2px solid #333;
-  border-radius: 12px;
-  padding: 10px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button[id^="mode-"].active {
-  background-color: #1e1e1e;
-  color: #10b981;
-  border-color: #10b981;
+  #category-bar { position: absolute; left: 40px; top: 100px; flex-direction: column; width: 180px; }
+  .category-btn { width: 100%; border-radius: 12px; padding: 12px 16px; font-size: 15px; }
 }
 
 /* ===== メインの単語カード ===== */
@@ -108,107 +46,58 @@ button[id^="mode-"].active {
   border: 1px solid #2a2a2a;
   margin-bottom: 20px;
   display: block; 
+  position: relative; /* ★追加：星マークの基準位置にするため */
 }
 
 /* 単語テキストの余白調整 */
-#word-zh, #quiz-zh { 
-  font-size: 48px; font-weight: 700; color: #ffffff; 
-  margin: 0 0 8px 0; line-height: 1.2; word-break: break-all; 
+#word-zh, #quiz-zh { font-size: 48px; font-weight: 700; color: #ffffff; margin: 0 0 8px 0; line-height: 1.2; word-break: break-all; }
+#word-pinyin, #quiz-pinyin { font-size: 20px; color: #9ca3af; margin: 0 0 24px 0; font-style: italic; }
+#word-jp { font-size: 24px; color: #e5e7eb; font-weight: 500; margin: 0 0 16px 0; word-break: break-word; }
+#word-note { font-size: 14px; color: #6b7280; margin: 0 0 20px 0; min-height: 20px; }
+#word-counter { font-size: 14px; color: #6b7280; margin: 0 0 20px 0; display: block; }
+
+/* ★追加：ブックマーク（星）ボタン */
+.bookmark-btn {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 36px;
+  color: #4b5563; /* オフの時は暗い色 */
+  cursor: pointer;
+  transition: 0.2s;
+  padding: 0;
+  line-height: 1;
 }
-#word-pinyin, #quiz-pinyin { 
-  font-size: 20px; color: #9ca3af; margin: 0 0 24px 0; font-style: italic; 
-}
-#word-jp { 
-  font-size: 24px; color: #e5e7eb; font-weight: 500; margin: 0 0 16px 0; word-break: break-word; 
-}
-#word-note { 
-  font-size: 14px; color: #6b7280; margin: 0 0 20px 0; min-height: 20px; 
-}
-#word-counter { 
-  font-size: 14px; color: #6b7280; margin: 0 0 20px 0; display: block;
-}
+.bookmark-btn:hover { transform: scale(1.1); }
+.bookmark-btn.active { color: #fbbf24; /* オンの時は黄色 */ text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
 
 /* ===== アクションボタン ===== */
-#speak-btn {
-  background-color: #f59e0b;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 32px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 24px;
-  display: inline-block;
-}
-#speak-btn:hover { background-color: #d97706; transform: translateY(-2px); }
+#speak-btn, #quiz-speak-btn { background-color: #f59e0b; color: #fff; border: none; border-radius: 20px; padding: 10px 32px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; display: inline-block; }
+#speak-btn { margin-bottom: 24px; }
+#quiz-speak-btn { margin: 10px auto 20px auto; }
+#speak-btn:hover, #quiz-speak-btn:hover { background-color: #d97706; transform: translateY(-2px); }
 
-/* HTML構造に依存しない最強の横並び設定 */
 #prev-btn, #random-btn, #next-btn {
-  background-color: #2d2d2d;
-  color: #e0e0e0;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 0;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 30%;             
-  margin: 0 1%;           
-  display: inline-block;  
-  box-sizing: border-box;
-  transition: all 0.2s;
-  vertical-align: middle;
+  background-color: #2d2d2d; color: #e0e0e0; border: none; border-radius: 12px; padding: 14px 0; font-size: 15px; font-weight: bold; cursor: pointer; width: 30%; margin: 0 1%; display: inline-block; box-sizing: border-box; transition: all 0.2s; vertical-align: middle;
 }
 #prev-btn:hover, #random-btn:hover, #next-btn:hover { background-color: #3d3d3d; transform: translateY(-2px); }
 
-/* 間違えた単語だけボタン */
-#toggle-wrong-btn {
-  background-color: #1e1e1e;
-  color: #ef4444;
-  border: 2px solid #ef4444;
-  border-radius: 16px;
-  padding: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 24px; 
-  transition: 0.3s;
-  display: block;
-  box-sizing: border-box;
+/* 間違えた単語 / ブックマーク ボタン */
+#toggle-wrong-btn, #toggle-bookmark-btn {
+  background-color: #1e1e1e; border-radius: 16px; padding: 12px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; display: block; box-sizing: border-box;
 }
+#toggle-wrong-btn { color: #ef4444; border: 2px solid #ef4444; margin-top: 24px; }
 #toggle-wrong-btn.active { background-color: #ef4444; color: #ffffff; }
 
+/* ★追加：ブックマークのみボタンのスタイル */
+#toggle-bookmark-btn { color: #fbbf24; border: 2px solid #fbbf24; margin-top: 12px; }
+#toggle-bookmark-btn.active { background-color: #fbbf24; color: #121212; }
+
 /* ===== クイズモード専用 ===== */
-.quiz-option-btn {
-  display: block;
-  width: 100%;
-  background-color: #2d2d2d;
-  color: #e0e0e0;
-  border: 1px solid #3a3a3a;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 12px;
-  font-size: 18px;
-  cursor: pointer;
-  transition: 0.2s;
-  box-sizing: border-box;
-}
+.quiz-option-btn { display: block; width: 100%; background-color: #2d2d2d; color: #e0e0e0; border: 1px solid #3a3a3a; border-radius: 16px; padding: 16px; margin-bottom: 12px; font-size: 18px; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
 .quiz-option-btn:hover:not(:disabled) { background-color: #3d3d3d; border-color: #555; }
 .quiz-option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
-
 #quiz-feedback { font-size: 20px; font-weight: bold; margin: 20px 0; min-height: 30px; }
-#quiz-next-btn {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 16px;
-  padding: 14px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100%;
-  display: none;
-  box-sizing: border-box;
-}
+#quiz-next-btn { background-color: #3b82f6; color: white; border: none; border-radius: 16px; padding: 14px 24px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; display: none; box-sizing: border-box; }
