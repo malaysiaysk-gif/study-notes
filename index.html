@@ -8,11 +8,6 @@
   <link rel="stylesheet" href="style.css" />
   
   <style>
-    /* ▼ スプレッドシートリンク用のスタイル ▼ */
-    .sheet-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-    .sheet-link { font-size: 14px; color: #3b82f6; text-decoration: underline; cursor: pointer; }
-    .sheet-link:hover { color: #2563eb; }
-
     /* ▼ 既存のスタイル ▼ */
     .speak-btn { margin-top: 8px; padding: 8px 16px; border-radius: 999px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: #f97316; color: white; }
     .mode-toggle { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
@@ -49,27 +44,28 @@
   <div class="app">
     <h1>台湾華語 単語カード</h1>
 
-    <div class="sheet-links">
-    <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=0" target="_blank" class="sheet-link">タブ1</a>
-      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=1997786373" target="_blank" class="sheet-link">タブ2</a>
-      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=635468461" target="_blank" class="sheet-link">タブ3</a>
-      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=431753409" target="_blank" class="sheet-link">タブ4</a>
-      <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=386010793" target="_blank" class="sheet-link">タブ5</a>
+    <div class="left-sidebar">
       
-      <a href="#" target="_blank" class="sheet-link">タブ6 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ7 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ8 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ9 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ10 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ11 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ12 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ13 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ14 (空)</a>
-      <a href="#" target="_blank" class="sheet-link">タブ15 (空)</a>
+      <div id="category-bar" class="category-bar"></div>
+
+      <div class="sheet-links">
+        <div class="sheet-links-title">データ管理</div>
+        <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=0" target="_blank" class="sheet-link">タブ1</a>
+        <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=1997786373" target="_blank" class="sheet-link">タブ2</a>
+        <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=635468461" target="_blank" class="sheet-link">タブ3</a>
+        <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=431753409" target="_blank" class="sheet-link">タブ4</a>
+        <a href="https://docs.google.com/spreadsheets/d/1x0RwS9AiIvDpSOL_yICRb68seT6Q2Hd619nzKjcgk3U/edit#gid=386010793" target="_blank" class="sheet-link">タブ5</a>
+        
+        <a href="#" target="_blank" class="sheet-link">タブ6 (空)</a>
+        <a href="#" target="_blank" class="sheet-link">タブ7 (空)</a>
+        <a href="#" target="_blank" class="sheet-link">タブ8 (空)</a>
+        <a href="#" target="_blank" class="sheet-link">タブ9 (空)</a>
+        <a href="#" target="_blank" class="sheet-link">タブ10 (空)</a>
+        <a href="#" target="_blank" class="sheet-link">タブ11 (空)</a>
+        <a href="#" target="_blank" class="sheet-link">タブ12 (空)</a>
+      </div>
+
     </div>
-
-    <div id="category-bar" class="category-bar"></div>
-
     <div class="mode-toggle">
       <button id="mode-card-btn" class="mode-btn active">カード</button>
       <button id="mode-quiz-btn" class="mode-btn">クイズ</button>
@@ -93,7 +89,10 @@
         <button id="random-btn">ランダム</button>
         <button id="next-btn">次へ</button>
       </div>
-      
+
+      <div class="autoplay-wrapper">
+        <button id="autoplay-btn" class="autoplay-btn">自動再生 スタート ▶️</button>
+      </div>
       <div class="wrong-toggle-wrapper">
         <button id="toggle-wrong-btn" class="toggle-wrong-btn">間違えた単語だけ</button>
         <button id="toggle-bookmark-btn" class="toggle-bookmark-btn">ブックマークのみ</button>
