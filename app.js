@@ -1246,27 +1246,77 @@ document.addEventListener("DOMContentLoaded", () => {
   
   let isListeningMode = false;
 
-  // ★追加：ブックマーク保存用変数
+  // ブックマーク保存用変数
   let bookmarkedIndices = new Set();
   let reviewBookmarkedOnly = false;
 
-  // ===== 音声再生の共通関数 =====
-  function playTaiwanese(text) {
-    if (!("speechSynthesis" in window)) return;
-    if (!text) return;
+  // ★追加：自動再生用の変数
+  let isAutoPlaying = false;
+  let autoPlayStep = 0; // 0: 中国語1回目, 1: 中国語2回目, 2: 日本語
+
+  // ===== 音声再生の共通関数（日本語対応版に進化） =====
+  function playAudio(text, lang = "zh-TW", callback = null) {
+    if (!("speechSynthesis" in window)) {
+      if (callback) callback();
+      return;
+    }
+    if (!text) {
+      if (callback) callback();
+      return;
+    }
+    
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "zh-TW";
+    utter.lang = lang;
     utter.rate = 0.9;
+    
     const voices = window.speechSynthesis.getVoices();
-    const chineseVoice = voices.find(v => v.lang.includes("zh") || v.lang.includes("ZH"));
-    if (chineseVoice) { utter.voice = chineseVoice; }
+    // 言語コード（zh や ja）が含まれる声を探す
+    const targetVoice = voices.find(v => v.lang.includes(lang.split('-')[0]) || v.lang.includes(lang.split('-')[0].toUpperCase()));
+    if (targetVoice) { utter.voice = targetVoice; }
+
+    // 読み終わったら次の処理（callback）を実行する
+    if (callback) {
+      utter.onend = callback;
+      utter.onerror = callback;
+    }
+    
     window.speechSynthesis.speak(utter);
+  }
+
+  // 既存のボタン用に元の名前の関数も残しておく
+  function playTaiwanese(text) {
+    playAudio(text, "zh-TW");
+  }
+
+  // ★追加：自動再生のバケツリレー機能
+  function runAutoPlay() {
+    if (!isAutoPlaying) return; // ストップされていたら終了
+
+    const w = words[currentIndex];
+    if (!w) return;
+
+    const zhText = w.zh || w.pinyin || "";
+    const jpText = w.jp || "";
+
+    if (autoPlayStep === 0) {
+      autoPlayStep = 1;
+      playAudio(zhText, "zh-TW", runAutoPlay); // 読み終わったら runAutoPlay を再実行
+    } else if (autoPlayStep === 1) {
+      autoPlayStep = 2;
+      playAudio(zhText, "zh-TW", runAutoPlay);
+    } else if (autoPlayStep === 2) {
+      autoPlayStep = 0; // ステップをリセット
+      playAudio(jpText, "ja-JP", () => {
+        if (!isAutoPlaying) return;
+        nextWord(); // 画面を次の単語へ
+        setTimeout(runAutoPlay, 1000); // 1秒（1000ミリ秒）待ってから次の単語を再生
+      });
+    }
   }
 
   function getWrongIndices() { return Object.keys(wrongMap).map((k) => Number(k)); }
 
-  // ★追加：現在有効な単語リストを取得する関数（フィルター機能）
   function getActiveList() {
     if (reviewWrongOnly) return getWrongIndices();
     if (reviewBookmarkedOnly) return Array.from(bookmarkedIndices);
@@ -1299,14 +1349,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("word-jp").textContent = w.jp || "";
     document.getElementById("word-note").textContent = w.note || "";
 
-    // リストの数を計算
     const list = getActiveList();
     const pos = list.indexOf(currentIndex);
     const safePos = pos === -1 ? 0 : pos;
     const elCounter = document.getElementById("word-counter");
     if(elCounter) elCounter.textContent = (safePos + 1) + " / " + list.length;
 
-    // ★追加：ブックマーク（星）の状態を更新
     const bookmarkBtn = document.getElementById("bookmark-btn");
     if (bookmarkBtn) {
       if (bookmarkedIndices.has(currentIndex)) {
@@ -1454,9 +1502,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===== イベントリスナー（各種ボタン） =====
-  document.getElementById("next-btn")?.addEventListener("click", nextWord);
-  document.getElementById("prev-btn")?.addEventListener("click", prevWord);
-  document.getElementById("random-btn")?.addEventListener("click", randomWord);
+  document.getElementById("next-btn")?.addEventListener("click", () => {
+    // 手動で次へを押したときは自動再生を止める
+    if (isAutoPlaying) document.getElementById("autoplay-btn").click();
+    nextWord();
+  });
+  document.getElementById("prev-btn")?.addEventListener("click", () => {
+    if (isAutoPlaying) document.getElementById("autoplay-btn").click();
+    prevWord();
+  });
+  document.getElementById("random-btn")?.addEventListener("click", () => {
+    if (isAutoPlaying) document.getElementById("autoplay-btn").click();
+    randomWord();
+  });
 
   const speakBtn = document.getElementById("speak-btn");
   if (speakBtn) speakBtn.addEventListener("click", () => playTaiwanese(words[currentIndex].zh || words[currentIndex].pinyin || ""));
@@ -1466,14 +1524,31 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentQuiz) playTaiwanese(words[currentQuiz.correctIndex].zh || words[currentQuiz.correctIndex].pinyin || "");
   });
 
-  // ★追加：星ボタンを押したときの処理
+  // ★追加：自動再生ボタンの処理
+  const autoplayBtn = document.getElementById("autoplay-btn");
+  if (autoplayBtn) {
+    autoplayBtn.addEventListener("click", () => {
+      isAutoPlaying = !isAutoPlaying; // ON/OFFを切り替え
+      
+      if (isAutoPlaying) {
+        autoplayBtn.textContent = "自動再生 ストップ ⏹️";
+        autoplayBtn.classList.add("active");
+        autoPlayStep = 0; // 最初からスタート
+        runAutoPlay();
+      } else {
+        autoplayBtn.textContent = "自動再生 スタート ▶️";
+        autoplayBtn.classList.remove("active");
+        window.speechSynthesis.cancel(); // 喋っている途中で強制ストップ
+      }
+    });
+  }
+
   const bookmarkBtn = document.getElementById("bookmark-btn");
   if (bookmarkBtn) {
     bookmarkBtn.addEventListener("click", () => {
       if (bookmarkedIndices.has(currentIndex)) {
-        bookmarkedIndices.delete(currentIndex); // ブックマーク解除
+        bookmarkedIndices.delete(currentIndex);
         
-        // 「ブックマークのみ」モード中に最後の1つを消したら全単語に戻す
         if (reviewBookmarkedOnly && bookmarkedIndices.size === 0) {
           alert("ブックマークが空になったので、全単語に戻ります。");
           reviewBookmarkedOnly = false;
@@ -1486,20 +1561,18 @@ document.addEventListener("DOMContentLoaded", () => {
           if (currentPos === -1) currentIndex = activeIndices[0] || 0;
           renderWord();
         } 
-        // 「ブックマークのみ」モードでまだ他にあるなら次の単語へ
         else if (reviewBookmarkedOnly) {
            nextWord();
         } else {
-           renderWord(); // 通常時は星が消えるだけ
+           renderWord(); 
         }
       } else {
-        bookmarkedIndices.add(currentIndex); // ブックマーク追加
+        bookmarkedIndices.add(currentIndex);
         renderWord();
       }
     });
   }
 
-  // 間違えた単語だけボタン
   const toggleWrongBtn = document.getElementById("toggle-wrong-btn");
   if (toggleWrongBtn) {
     toggleWrongBtn.addEventListener("click", () => {
@@ -1512,7 +1585,6 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleWrongBtn.textContent = reviewWrongOnly ? "全単語に戻る" : "間違えた単語だけ";
       
       if (reviewWrongOnly) {
-        // 間違いモードONの時は、ブックマークモードを強制OFFにする
         reviewBookmarkedOnly = false;
         const toggleBookmarkBtn = document.getElementById("toggle-bookmark-btn");
         if (toggleBookmarkBtn) {
@@ -1528,7 +1600,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ★追加：ブックマークのみボタン
   const toggleBookmarkBtn = document.getElementById("toggle-bookmark-btn");
   if (toggleBookmarkBtn) {
     toggleBookmarkBtn.addEventListener("click", () => {
@@ -1541,7 +1612,6 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleBookmarkBtn.textContent = reviewBookmarkedOnly ? "全単語に戻る" : "ブックマークのみ";
 
       if (reviewBookmarkedOnly) {
-        // ブックマークモードONの時は、間違いモードを強制OFFにする
         reviewWrongOnly = false;
         const tbBtn = document.getElementById("toggle-wrong-btn");
         if (tbBtn) {
@@ -1571,6 +1641,9 @@ document.addEventListener("DOMContentLoaded", () => {
     cardBtn.classList.add("active");
     if(quizBtn) quizBtn.classList.remove("active");
     if(listeningBtn) listeningBtn.classList.remove("active");
+    
+    // モード切替時に自動再生を止める
+    if (isAutoPlaying && document.getElementById("autoplay-btn")) document.getElementById("autoplay-btn").click();
   });
 
   if (quizBtn) quizBtn.addEventListener("click", () => {
@@ -1582,6 +1655,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if(listeningBtn) listeningBtn.classList.remove("active");
     if (!currentQuiz) nextQuizQuestion();
     else renderQuiz(currentQuiz); 
+    
+    if (isAutoPlaying && document.getElementById("autoplay-btn")) document.getElementById("autoplay-btn").click();
   });
 
   if (listeningBtn) listeningBtn.addEventListener("click", () => {
@@ -1593,6 +1668,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if(quizBtn) quizBtn.classList.remove("active");
     if (!currentQuiz) nextQuizQuestion();
     else renderQuiz(currentQuiz); 
+    
+    if (isAutoPlaying && document.getElementById("autoplay-btn")) document.getElementById("autoplay-btn").click();
   });
 
   const quizNextBtn = document.getElementById("quiz-next-btn");
@@ -1617,7 +1694,6 @@ document.addEventListener("DOMContentLoaded", () => {
         activeCategory = cat;
         rebuildActiveIndices();
         
-        // カテゴリを変えたらフィルターもOFFにする
         reviewWrongOnly = false;
         reviewBookmarkedOnly = false;
         
